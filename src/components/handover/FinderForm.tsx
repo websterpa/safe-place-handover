@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import CameraCapture from "@/components/CameraCapture";
+import CameraCapture, { CameraCaptureHandle } from "@/components/CameraCapture";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Camera } from "lucide-react";
 
 // Define the finder form schema
 const finderFormSchema = z.object({
@@ -32,10 +34,31 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
       itemDescription: "",
     },
   });
+  
+  const cameraRef = useRef<CameraCaptureHandle>(null);
+  const [photoTaken, setPhotoTaken] = React.useState(false);
+  
+  const handlePhotoCapture = (photoData: string) => {
+    console.log("Photo captured in FinderForm");
+    setPhotoTaken(true);
+    onPhotoCapture(photoData);
+  };
+  
+  const handleSubmit = (values: FinderFormValues) => {
+    if (!photoTaken) {
+      form.setError("root", { 
+        type: "manual",
+        message: "Please take a photo of the item before submitting" 
+      });
+      return;
+    }
+    
+    onSubmit(values);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="finderName"
@@ -78,8 +101,27 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
           )}
         />
         
-        {/* Add camera capture component */}
-        <CameraCapture onPhotoCapture={onPhotoCapture} />
+        <div className="border rounded-lg p-4 bg-gray-50">
+          <h3 className="text-lg font-medium mb-3 flex items-center">
+            <Camera className="mr-2 h-4 w-4" /> 
+            Item Photo
+          </h3>
+          
+          {/* Add camera capture component */}
+          <CameraCapture ref={cameraRef} onPhotoCapture={handlePhotoCapture} />
+          
+          {photoTaken && (
+            <Alert className="mt-4" variant="info">
+              <AlertDescription>Photo successfully captured!</AlertDescription>
+            </Alert>
+          )}
+        </div>
+        
+        {form.formState.errors.root && (
+          <Alert variant="destructive">
+            <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
+          </Alert>
+        )}
         
         <div className="pt-4">
           <Button type="submit" className="w-full">
