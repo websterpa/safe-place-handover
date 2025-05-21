@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
@@ -65,7 +66,7 @@ const Index = () => {
                 </Button>
                 
                 <Button variant="outline" className="flex items-center justify-between text-lg py-6" onClick={handleDirectHandoverClick}>
-                  <div>Give the found item to someone in a safe place</div>
+                  <div>Pass item to Safe Place staff</div>
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </div>
