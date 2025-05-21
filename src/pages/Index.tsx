@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
@@ -7,12 +6,12 @@ import QRCode from "@/components/QRCode";
 import { generateUUID } from "@/utils/uuid";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
-
 const Index = () => {
   const [handoverId, setHandoverId] = useState<string | null>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   const handleSafePlaceClick = () => {
     // Generate a unique handover ID
     const uuid = generateUUID();
@@ -22,7 +21,6 @@ const Index = () => {
       description: "Show this QR code to staff for handover verification"
     });
   };
-
   const handleDirectHandoverClick = () => {
     // Generate a unique handover ID
     const uuid = generateUUID();
@@ -34,10 +32,8 @@ const Index = () => {
       createdAt: new Date().toISOString(),
       status: 'initiated'
     };
-    
     localStorage.setItem(uuid, JSON.stringify(handoverData));
     console.log("Stored handover data:", handoverData);
-    
     toast({
       title: "Direct handover initiated",
       description: "You will now proceed to the handover form"
@@ -47,12 +43,11 @@ const Index = () => {
     console.log("Navigating to:", `/direct-handover?id=${uuid}`);
     navigate(`/direct-handover?id=${uuid}`);
   };
-
   return <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-2">iFoundIt.io</h1>
-          <p className="text-gray-600">Secure lost item handover system</p>
+          <p className="text-gray-600">Secure 'Found' item handover system</p>
         </header>
 
         {!handoverId ? <Card className="shadow-lg">
@@ -106,5 +101,4 @@ const Index = () => {
       </div>
     </div>;
 };
-
 export default Index;
