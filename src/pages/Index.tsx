@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import QRCode from "@/components/QRCode";
 import { generateUUID } from "@/utils/uuid";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +11,7 @@ import { ArrowRight, Check, ShieldCheck } from "lucide-react";
 const Index = () => {
   const [handoverId, setHandoverId] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSafePlaceClick = () => {
     // Generate a unique handover ID
@@ -20,6 +22,26 @@ const Index = () => {
       title: "Safe handover initiated",
       description: "Show this QR code to staff for handover verification",
     });
+  };
+
+  const handleDirectHandoverClick = () => {
+    // Generate a unique handover ID
+    const uuid = generateUUID();
+    
+    // Save the creation timestamp to check for expiry later
+    localStorage.setItem(uuid, JSON.stringify({
+      handoverId: uuid,
+      createdAt: new Date().toISOString(),
+      status: 'initiated'
+    }));
+    
+    toast({
+      title: "Direct handover initiated",
+      description: "You will now proceed to the handover form",
+    });
+    
+    // Navigate to the direct handover page with the ID
+    navigate(`/direct-handover?id=${uuid}`);
   };
 
   return (
@@ -51,6 +73,7 @@ const Index = () => {
                 <Button 
                   variant="outline" 
                   className="flex items-center justify-between text-lg py-6"
+                  onClick={handleDirectHandoverClick}
                 >
                   <div>Hand over directly</div>
                   <ArrowRight className="h-5 w-5" />

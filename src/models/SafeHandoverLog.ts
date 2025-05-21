@@ -41,3 +41,32 @@ export interface SafeHandoverRequest {
   // Status of the handover request
   status: 'pending' | 'completed' | 'expired';
 }
+
+// New interface for direct handover
+export interface DirectHandoverLog {
+  // Unique identifier for the handover record
+  id: string;
+  
+  // The UUID generated for this handover
+  handoverId: string;
+  
+  // Information about the finder
+  finderName: string;
+  finderContact?: string;
+  itemDescription: string;
+  
+  // Information about the recipient
+  staffName: string;
+  staffRole?: string;
+  staffContact?: string;
+  
+  // Whether the recipient confirmed receipt of the item
+  confirmed: boolean;
+  
+  // Timestamps
+  createdAt: string;
+  submittedAt: string;
+  
+  // Status of the direct handover
+  status: 'initiated' | 'awaiting_recipient' | 'completed' | 'expired';
+}
