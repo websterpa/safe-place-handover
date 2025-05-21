@@ -50,17 +50,43 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
         
         {loading && <CameraLoading />}
 
+        <video 
+          ref={videoRef} 
+          style={{ display: cameraActive ? 'block' : 'none' }}
+          autoPlay 
+          playsInline 
+          muted 
+          className="w-full h-auto border rounded overflow-hidden bg-black"
+          height="200"
+        />
+
         {!cameraActive && !loading && (
           <CameraActivator onActivate={handleActivate} disabled={loading} />
         )}
 
         {cameraActive && (
-          <VideoPreview
-            videoRef={videoRef}
-            onTakePhoto={takePhoto}
-            onStopCamera={stopCamera}
-            onToggleFacing={toggleCameraFacing}
-          />
+          <div className="flex gap-2 justify-between">
+            <button 
+              className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+              onClick={takePhoto}
+            >
+              Take Photo
+            </button>
+            <div className="flex gap-2">
+              <button 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground px-4 py-2 rounded transition-colors flex items-center gap-2" 
+                onClick={toggleCameraFacing}
+              >
+                <span className="mr-2 h-4 w-4">↺</span> Flip Camera
+              </button>
+              <button 
+                className="border border-input bg-background hover:bg-accent hover:text-accent-foreground px-4 py-2 rounded transition-colors flex items-center gap-2"
+                onClick={stopCamera}
+              >
+                <span className="mr-2 h-4 w-4">✕</span> Stop Camera
+              </button>
+            </div>
+          </div>
         )}
 
         <canvas ref={canvasRef} className="hidden" />
