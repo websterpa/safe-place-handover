@@ -37,7 +37,11 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
     useImperativeHandle(ref, () => ({
       startCamera,
       stopCamera,
-      takePhoto,
+      takePhoto: () => {
+        const photo = takePhoto();
+        if (photo) setCapturedImage(photo);
+        return photo;
+      },
     }));
 
     const handleActivate = () => {
@@ -58,18 +62,22 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       // Take a new photo
       const photoData = takePhoto();
       if (photoData) {
+        console.log("Photo captured, setting in state");
         setCapturedImage(photoData);
+        stopCamera(); // Stop camera after capturing
       }
     };
     
     const handleSavePhoto = () => {
       if (capturedImage && onPhotoCapture) {
+        console.log("Saving photo and passing to parent component");
         onPhotoCapture(capturedImage);
-        setCapturedImage(null);
+        setCapturedImage(null); // Clear the captured image from component state
       }
     };
     
     const handleRetakePhoto = () => {
+      console.log("Retaking photo");
       setCapturedImage(null);
       startCamera();
     };

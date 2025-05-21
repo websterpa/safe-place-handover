@@ -42,6 +42,16 @@ const DirectHandover = () => {
         setInvalidHandover(true);
       } else {
         console.log("Valid handover ID found:", handoverId);
+        // Check if this handover already has photo data
+        try {
+          const parsedData = JSON.parse(storedData);
+          if (parsedData.itemPhoto) {
+            console.log("Found existing photo in storage, setting it");
+            setItemPhoto(parsedData.itemPhoto);
+          }
+        } catch (err) {
+          console.error("Error parsing stored handover data:", err);
+        }
       }
     }
   }, [handoverId, toast]);
@@ -55,6 +65,20 @@ const DirectHandover = () => {
   const handlePhotoCapture = (photoData: string) => {
     console.log("Photo captured in parent component");
     setItemPhoto(photoData);
+    
+    // If there's already stored data for this handover, update it with the photo
+    if (handoverId && localStorage.getItem(handoverId)) {
+      try {
+        const existingData = JSON.parse(localStorage.getItem(handoverId) || "{}");
+        localStorage.setItem(handoverId, JSON.stringify({
+          ...existingData,
+          itemPhoto: photoData
+        }));
+        console.log("Updated existing handover data with photo");
+      } catch (err) {
+        console.error("Error updating handover data with photo:", err);
+      }
+    }
     
     toast({
       title: "Photo captured",
