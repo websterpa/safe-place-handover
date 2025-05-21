@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, CameraOff, AlertCircle, Info } from "lucide-react";
@@ -38,8 +37,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
 
       // Check if video ref is available
       if (!videoRef.current) {
-        console.error("Video ref is not available");
-        setError("Video element reference not available. Try refreshing the page.");
+        console.error("Video element not found.");
+        setError("Video element not found.");
         setLoading(false);
         return;
       }
@@ -65,48 +64,26 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
         
         videoRef.current.srcObject = stream;
         
-        // Wait for video metadata to load before playing
-        videoRef.current.onloadedmetadata = () => {
-          if (videoRef.current) {
-            console.log("Video metadata loaded, attempting to play");
-            
-            // Promise-based play with error handling
-            videoRef.current.play()
-              .then(() => {
-                console.log("Video playback started successfully");
-                setIsActive(true);
-                setLoading(false);
-              })
-              .catch(err => {
-                console.error("Error starting video playback:", err);
-                setError(`Error starting camera: ${err.message || "Could not start playback"}`);
-                setLoading(false);
-              });
-          }
-        };
-        
-        // Handle errors during metadata loading
-        videoRef.current.onerror = (e) => {
-          console.error("Video element error:", e);
-          // Fix: Type guard to ensure we're dealing with an Event object with target property
-          if (e && typeof e === 'object' && 'target' in e) {
-            const target = e.target as HTMLVideoElement;
-            setError(`Camera error: ${target.error?.message || "Unknown error"}`);
-          } else {
-            setError("Camera error: Unknown error occurred");
-          }
+        try {
+          await videoRef.current.play();
+          console.log("Video playback started successfully");
+          setIsActive(true);
           setLoading(false);
-        };
+        } catch (playErr: any) {
+          console.error("Error starting video playback:", playErr);
+          setError(`Failed to start video playback: ${playErr.message || "Unknown error"}`);
+          setLoading(false);
+        }
       } else {
         // This should not happen since we check earlier, but just in case
         setError("Video element reference not available after obtaining stream");
         setLoading(false);
       }
     } catch (err: any) {
-      console.error("Error accessing camera:", err);
+      console.error("Camera error:", err);
       const errorMessage = err.name === 'NotAllowedError' 
         ? "Camera access was denied. Please allow camera access and try again." 
-        : `Camera error: ${err.message || 'Unknown error'}`;
+        : `Failed to access camera: ${err.message || 'Unknown error'}`;
       setError(errorMessage);
       setLoading(false);
     }
