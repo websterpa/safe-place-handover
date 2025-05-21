@@ -36,15 +36,28 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
     try {
       setError(null);
       setLoading(true);
-      console.log("Requesting camera access...");
+      console.log("Requesting camera access with facing mode:", facingMode);
+      
+      // First ensure any existing streams are stopped
+      stopCamera();
       
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: {
-          facingMode: facingMode // Use current facing mode
-        } 
+          facingMode: facingMode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
       });
       
       console.log(`Camera access granted for ${facingMode} camera, setting up video stream`);
+      
+      // Make sure video element is still available
+      if (!videoRef.current) {
+        console.error("Video element not available after stream initialization");
+        throw new Error("Video element not available");
+      }
+      
       videoRef.current.srcObject = stream;
       
       // Set up event listeners for better error catching
@@ -54,18 +67,20 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
       
       videoRef.current.oncanplay = () => {
         console.log("Video can play, attempting to play");
-        videoRef.current?.play()
-          .then(() => {
-            console.log("Video playing successfully");
-            setCameraActive(true);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.error("Video play error:", err);
-            setError(`Failed to play video stream: ${err.message}`);
-            setLoading(false);
-            stopCamera(); // Clean up the stream if play fails
-          });
+        if (videoRef.current) {
+          videoRef.current.play()
+            .then(() => {
+              console.log("Video playing successfully");
+              setCameraActive(true);
+              setLoading(false);
+            })
+            .catch((err) => {
+              console.error("Video play error:", err);
+              setError(`Failed to play video stream: ${err.message}`);
+              setLoading(false);
+              stopCamera(); // Clean up the stream if play fails
+            });
+        }
       };
       
       videoRef.current.onerror = (event) => {
@@ -77,7 +92,7 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
       
     } catch (err: any) {
       console.error("Camera access error:", err);
-      setError("Failed to access camera: " + err.message);
+      setError("Failed to access camera: " + (err.message || "Unknown error"));
       setLoading(false);
     }
   };

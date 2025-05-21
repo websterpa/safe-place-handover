@@ -27,6 +27,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           playsInline
           muted
           className="w-full h-auto"
+          style={{ minHeight: "200px" }}
         />
       </div>
       <div className="flex gap-2 justify-between">

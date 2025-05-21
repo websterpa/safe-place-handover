@@ -37,6 +37,13 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       takePhoto,
     }));
 
+    const handleActivate = () => {
+      console.log("Activating camera from button click");
+      startCamera().catch(err => {
+        console.error("Failed to start camera:", err);
+      });
+    };
+
     return (
       <div className="space-y-4">
         {error && <CameraError error={error} />}
@@ -44,7 +51,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
         {loading && <CameraLoading />}
 
         {!cameraActive && !loading && (
-          <CameraActivator onActivate={startCamera} disabled={loading} />
+          <CameraActivator onActivate={handleActivate} disabled={loading} />
         )}
 
         {cameraActive && (
