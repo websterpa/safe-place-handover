@@ -1,41 +1,13 @@
 
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { isHandoverExpired } from "@/utils/uuid";
-import { Check, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import CameraCapture from "@/components/CameraCapture";
-
-// Define the finder form schema
-const finderFormSchema = z.object({
-  finderName: z.string().min(1, "Name is required"),
-  finderContact: z.string().optional(),
-  itemDescription: z.string().min(1, "Item description is required"),
-});
-
-// Define the recipient form schema with first name and last name
-const recipientFormSchema = z.object({
-  staffFirstName: z.string().min(1, "First name is required"),
-  staffLastName: z.string().min(1, "Last name is required"),
-  staffRole: z.string().optional(),
-  staffContact: z.string().optional(),
-  confirmed: z.boolean().refine(val => val === true, {
-    message: "You must confirm receipt of the item",
-  }),
-});
-
-type FinderFormValues = z.infer<typeof finderFormSchema>;
-type RecipientFormValues = z.infer<typeof recipientFormSchema>;
+import FinderForm, { FinderFormValues } from "@/components/handover/FinderForm";
+import RecipientForm, { RecipientFormValues } from "@/components/handover/RecipientForm";
+import HandoverStatus from "@/components/handover/HandoverStatus";
+import PageContainer from "@/components/handover/PageContainer";
 
 const DirectHandover = () => {
   const [searchParams] = useSearchParams();
@@ -51,28 +23,6 @@ const DirectHandover = () => {
   const isExpired = handoverId && localStorage.getItem(handoverId) 
     ? isHandoverExpired(JSON.parse(localStorage.getItem(handoverId)!).createdAt) 
     : false;
-
-  // Initialize finder form
-  const finderForm = useForm<FinderFormValues>({
-    resolver: zodResolver(finderFormSchema),
-    defaultValues: {
-      finderName: "",
-      finderContact: "",
-      itemDescription: "",
-    },
-  });
-
-  // Initialize recipient form with first name and last name fields
-  const recipientForm = useForm<RecipientFormValues>({
-    resolver: zodResolver(recipientFormSchema),
-    defaultValues: {
-      staffFirstName: "",
-      staffLastName: "",
-      staffRole: "",
-      staffContact: "",
-      confirmed: false,
-    },
-  });
 
   // Handle photo capture
   const handlePhotoCapture = (photoData: string) => {
@@ -128,257 +78,42 @@ const DirectHandover = () => {
 
   // Render expired message if the link is expired
   if (isExpired) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4">
-        <div className="max-w-md mx-auto">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl text-red-600">Handover Link Expired</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <p className="text-center text-gray-600">
-                This handover link has expired. Handover links are valid for 6 hours from creation.
-              </p>
-              <Button asChild className="w-full">
-                <Link to="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Return to Home
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <HandoverStatus status="expired" />;
   }
 
   // Render success message if the handover is completed
   if (handoverCompleted) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4">
-        <div className="max-w-md mx-auto">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl text-green-600">Handover Successful</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-center">
-                <div className="bg-green-100 p-4 rounded-full">
-                  <Check className="h-12 w-12 text-green-600" />
-                </div>
-              </div>
-              <p className="text-center text-gray-600">
-                The direct handover has been successfully completed and recorded.
-              </p>
-              <Button asChild className="w-full">
-                <Link to="/">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Return to Home
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    return <HandoverStatus status="success" />;
   }
 
   // Render the finder form if not yet submitted
   if (!finderSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4">
-        <div className="max-w-md mx-auto">
-          <header className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-2">iFoundIt.io</h1>
-            <p className="text-gray-600">Direct Handover - Finder Information</p>
-          </header>
-
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl">Finder Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...finderForm}>
-                <form onSubmit={finderForm.handleSubmit(onFinderSubmit)} className="space-y-6">
-                  <FormField
-                    control={finderForm.control}
-                    name="finderName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Your Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your full name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={finderForm.control}
-                    name="finderContact"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Contact Information (optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Email or phone number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={finderForm.control}
-                    name="itemDescription"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Item Description</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Briefly describe the found item" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  {/* Add camera capture component */}
-                  <CameraCapture onPhotoCapture={handlePhotoCapture} />
-                  
-                  <div className="pt-4">
-                    <Button type="submit" className="w-full">
-                      Continue to Recipient
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <PageContainer title="iFoundIt.io" subtitle="Direct Handover - Finder Information">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-center text-2xl">Finder Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FinderForm onSubmit={onFinderSubmit} onPhotoCapture={handlePhotoCapture} />
+          </CardContent>
+        </Card>
+      </PageContainer>
     );
   }
 
   // Render the recipient form if finder info is submitted
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <header className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-2">iFoundIt.io</h1>
-          <p className="text-gray-600">Direct Handover - Recipient Information</p>
-        </header>
-
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl">Recipient Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Display the item photo if available */}
-            {itemPhoto && (
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Item Photo</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  <img 
-                    src={itemPhoto} 
-                    alt="Item" 
-                    className="w-full h-auto object-cover"
-                  />
-                </div>
-              </div>
-            )}
-
-            <Form {...recipientForm}>
-              <form onSubmit={recipientForm.handleSubmit(onRecipientSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={recipientForm.control}
-                    name="staffFirstName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter first name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={recipientForm.control}
-                    name="staffLastName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter last name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={recipientForm.control}
-                  name="staffRole"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role/Position (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Store Manager, Security Officer" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={recipientForm.control}
-                  name="staffContact"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Information (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Email or phone number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={recipientForm.control}
-                  name="confirmed"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-4">
-                      <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          I confirm that I have received this item and accept responsibility for it
-                        </FormLabel>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="pt-4">
-                  <Button type="submit" className="w-full">
-                    Complete Handover
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <PageContainer title="iFoundIt.io" subtitle="Direct Handover - Recipient Information">
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl">Recipient Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RecipientForm onSubmit={onRecipientSubmit} itemPhoto={itemPhoto} />
+        </CardContent>
+      </Card>
+    </PageContainer>
   );
 };
 
