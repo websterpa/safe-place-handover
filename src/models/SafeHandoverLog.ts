@@ -56,7 +56,8 @@ export interface DirectHandoverLog {
   itemDescription: string;
   
   // Information about the recipient
-  staffName: string;
+  staffFirstName: string;
+  staffLastName: string;
   staffRole?: string;
   staffContact?: string;
   

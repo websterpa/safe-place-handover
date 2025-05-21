@@ -22,9 +22,10 @@ const finderFormSchema = z.object({
   itemDescription: z.string().min(1, "Item description is required"),
 });
 
-// Define the recipient form schema
+// Define the recipient form schema with first name and last name
 const recipientFormSchema = z.object({
-  staffName: z.string().min(1, "Name is required"),
+  staffFirstName: z.string().min(1, "First name is required"),
+  staffLastName: z.string().min(1, "Last name is required"),
   staffRole: z.string().optional(),
   staffContact: z.string().optional(),
   confirmed: z.boolean().refine(val => val === true, {
@@ -59,11 +60,12 @@ const DirectHandover = () => {
     },
   });
 
-  // Initialize recipient form
+  // Initialize recipient form with first name and last name fields
   const recipientForm = useForm<RecipientFormValues>({
     resolver: zodResolver(recipientFormSchema),
     defaultValues: {
-      staffName: "",
+      staffFirstName: "",
+      staffLastName: "",
       staffRole: "",
       staffContact: "",
       confirmed: false,
@@ -99,6 +101,8 @@ const DirectHandover = () => {
       const handoverData = {
         ...finderData,
         ...values,
+        // Generate a full name from first and last name for backward compatibility if needed
+        staffName: `${values.staffFirstName} ${values.staffLastName}`.trim(),
         submittedAt: new Date().toISOString(),
         status: 'completed'
       };
@@ -260,19 +264,35 @@ const DirectHandover = () => {
           <CardContent>
             <Form {...recipientForm}>
               <form onSubmit={recipientForm.handleSubmit(onRecipientSubmit)} className="space-y-4">
-                <FormField
-                  control={recipientForm.control}
-                  name="staffName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={recipientForm.control}
+                    name="staffFirstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter first name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={recipientForm.control}
+                    name="staffLastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter last name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 
                 <FormField
                   control={recipientForm.control}
