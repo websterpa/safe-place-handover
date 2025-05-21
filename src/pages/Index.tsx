@@ -65,7 +65,7 @@ const Index = () => {
                 </Button>
                 
                 <Button variant="outline" className="flex items-center justify-between text-lg py-6" onClick={handleDirectHandoverClick}>
-                  <div>Hand over directly</div>
+                  <div>Give the found item to someone in a safe place</div>
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </div>
