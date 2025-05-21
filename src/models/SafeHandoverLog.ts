@@ -55,6 +55,9 @@ export interface DirectHandoverLog {
   finderContact?: string;
   itemDescription: string;
   
+  // New field: Photo of the item (stored as base64 string)
+  itemPhoto?: string;
+  
   // Information about the recipient
   staffFirstName: string;
   staffLastName: string;
@@ -71,3 +74,4 @@ export interface DirectHandoverLog {
   // Status of the direct handover
   status: 'initiated' | 'awaiting_recipient' | 'completed' | 'expired';
 }
+

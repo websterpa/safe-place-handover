@@ -14,6 +14,7 @@ import * as z from "zod";
 import { isHandoverExpired } from "@/utils/uuid";
 import { Check, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import CameraCapture from "@/components/CameraCapture";
 
 // Define the finder form schema
 const finderFormSchema = z.object({
@@ -44,6 +45,7 @@ const DirectHandover = () => {
   const [finderSubmitted, setFinderSubmitted] = useState(false);
   const [handoverCompleted, setHandoverCompleted] = useState(false);
   const [createdAt] = useState(new Date().toISOString());
+  const [itemPhoto, setItemPhoto] = useState<string | null>(null);
 
   // Check if the handover link is valid
   const isExpired = handoverId && localStorage.getItem(handoverId) 
@@ -72,6 +74,11 @@ const DirectHandover = () => {
     },
   });
 
+  // Handle photo capture
+  const handlePhotoCapture = (photoData: string) => {
+    setItemPhoto(photoData);
+  };
+
   // Handle finder form submission
   const onFinderSubmit = (values: FinderFormValues) => {
     if (handoverId) {
@@ -80,6 +87,7 @@ const DirectHandover = () => {
         ...values,
         handoverId,
         createdAt,
+        itemPhoto, // Include the item photo in the stored data
         status: 'awaiting_recipient'
       }));
       
@@ -191,7 +199,7 @@ const DirectHandover = () => {
             </CardHeader>
             <CardContent>
               <Form {...finderForm}>
-                <form onSubmit={finderForm.handleSubmit(onFinderSubmit)} className="space-y-4">
+                <form onSubmit={finderForm.handleSubmit(onFinderSubmit)} className="space-y-6">
                   <FormField
                     control={finderForm.control}
                     name="finderName"
@@ -234,6 +242,9 @@ const DirectHandover = () => {
                     )}
                   />
                   
+                  {/* Add camera capture component */}
+                  <CameraCapture onPhotoCapture={handlePhotoCapture} />
+                  
                   <div className="pt-4">
                     <Button type="submit" className="w-full">
                       Continue to Recipient
@@ -262,6 +273,20 @@ const DirectHandover = () => {
             <CardTitle className="text-center text-2xl">Recipient Information</CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Display the item photo if available */}
+            {itemPhoto && (
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-2">Item Photo</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <img 
+                    src={itemPhoto} 
+                    alt="Item" 
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              </div>
+            )}
+
             <Form {...recipientForm}>
               <form onSubmit={recipientForm.handleSubmit(onRecipientSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
