@@ -1,36 +1,63 @@
 
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { isHandoverExpired } from "@/utils/uuid";
 import FinderForm, { FinderFormValues } from "@/components/handover/FinderForm";
 import RecipientForm, { RecipientFormValues } from "@/components/handover/RecipientForm";
 import HandoverStatus from "@/components/handover/HandoverStatus";
 import PageContainer from "@/components/handover/PageContainer";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const DirectHandover = () => {
   const [searchParams] = useSearchParams();
   const handoverId = searchParams.get("id");
+  const navigate = useNavigate();
   const { toast } = useToast();
   
   const [finderSubmitted, setFinderSubmitted] = useState(false);
   const [handoverCompleted, setHandoverCompleted] = useState(false);
   const [createdAt] = useState(new Date().toISOString());
   const [itemPhoto, setItemPhoto] = useState<string | null>(null);
+  const [invalidHandover, setInvalidHandover] = useState(false);
 
-  // Check if the handover link is valid
+  // Check if the handover ID is valid on component mount
+  useEffect(() => {
+    console.log("DirectHandover: Checking handover ID validity", handoverId);
+    if (!handoverId) {
+      console.error("No handover ID found in URL params");
+      setInvalidHandover(true);
+      toast({
+        title: "Invalid Handover",
+        description: "No handover ID found. Please return to the home page and try again.",
+        variant: "destructive"
+      });
+    } else {
+      const storedData = localStorage.getItem(handoverId);
+      if (!storedData) {
+        console.error("No stored data found for handover ID:", handoverId);
+        setInvalidHandover(true);
+      }
+    }
+  }, [handoverId, toast]);
+
+  // Check if the handover link is valid and not expired
   const isExpired = handoverId && localStorage.getItem(handoverId) 
     ? isHandoverExpired(JSON.parse(localStorage.getItem(handoverId)!).createdAt) 
     : false;
 
   // Handle photo capture
   const handlePhotoCapture = (photoData: string) => {
+    console.log("Photo captured in parent component");
     setItemPhoto(photoData);
   };
 
   // Handle finder form submission
   const onFinderSubmit = (values: FinderFormValues) => {
+    console.log("Finder form submitted:", values);
     if (handoverId) {
       // Save finder data to localStorage
       localStorage.setItem(handoverId, JSON.stringify({
@@ -52,6 +79,7 @@ const DirectHandover = () => {
 
   // Handle recipient form submission
   const onRecipientSubmit = (values: RecipientFormValues) => {
+    console.log("Recipient form submitted:", values);
     if (handoverId) {
       const finderData = JSON.parse(localStorage.getItem(handoverId) || "{}");
       
@@ -75,6 +103,36 @@ const DirectHandover = () => {
       });
     }
   };
+
+  // Return to home page
+  const goToHome = () => {
+    navigate("/");
+  };
+
+  // Render error message if the handover is invalid
+  if (invalidHandover) {
+    return (
+      <PageContainer title="iFoundIt.io" subtitle="Invalid Handover Request">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-center text-2xl text-red-600">Invalid Handover</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                This handover request is invalid or has been tampered with.
+              </AlertDescription>
+            </Alert>
+            <Button onClick={goToHome} className="w-full">
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </PageContainer>
+    );
+  }
 
   // Render expired message if the link is expired
   if (isExpired) {
