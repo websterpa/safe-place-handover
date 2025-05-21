@@ -10,7 +10,7 @@ import RecipientForm, { RecipientFormValues } from "@/components/handover/Recipi
 import HandoverStatus from "@/components/handover/HandoverStatus";
 import PageContainer from "@/components/handover/PageContainer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Camera } from "lucide-react";
 
 const DirectHandover = () => {
   const [searchParams] = useSearchParams();
@@ -40,6 +40,8 @@ const DirectHandover = () => {
       if (!storedData) {
         console.error("No stored data found for handover ID:", handoverId);
         setInvalidHandover(true);
+      } else {
+        console.log("Valid handover ID found:", handoverId);
       }
     }
   }, [handoverId, toast]);
@@ -53,6 +55,11 @@ const DirectHandover = () => {
   const handlePhotoCapture = (photoData: string) => {
     console.log("Photo captured in parent component");
     setItemPhoto(photoData);
+    
+    toast({
+      title: "Photo captured",
+      description: "Item photo has been successfully captured."
+    });
   };
 
   // Handle finder form submission
@@ -153,6 +160,13 @@ const DirectHandover = () => {
             <CardTitle className="text-center text-2xl">Finder Information</CardTitle>
           </CardHeader>
           <CardContent>
+            <Alert className="mb-6" variant="info">
+              <Camera className="h-4 w-4" />
+              <AlertDescription>
+                You'll need to use your camera to take a photo of the item. Please ensure you've granted camera permissions when prompted.
+              </AlertDescription>
+            </Alert>
+            
             <FinderForm onSubmit={onFinderSubmit} onPhotoCapture={handlePhotoCapture} />
           </CardContent>
         </Card>

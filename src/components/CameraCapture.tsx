@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, CameraOff, AlertCircle } from "lucide-react";
+import { Camera, CameraOff, AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CameraCaptureProps {
@@ -14,13 +14,18 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
   const [photoData, setPhotoData] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [browserSupported, setBrowserSupported] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Check browser compatibility
+  // Check browser compatibility immediately
   useEffect(() => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error("Browser doesn't support mediaDevices API");
+      setBrowserSupported(false);
       setError("Your browser doesn't support camera access. Try using Chrome, Firefox, or Safari.");
+    } else {
+      console.log("Browser supports mediaDevices API");
     }
   }, []);
 
@@ -31,6 +36,14 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
       setLoading(true);
       console.log("Starting camera...");
 
+      // Check if video ref is available
+      if (!videoRef.current) {
+        console.error("Video ref is not available");
+        setError("Video element reference not available. Try refreshing the page.");
+        setLoading(false);
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: "environment",  // Prefer back camera on mobile
@@ -39,27 +52,56 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
         } 
       });
       
+      console.log("Camera stream obtained successfully");
+      
       if (videoRef.current) {
-        console.log("Setting video stream...");
+        console.log("Setting video stream to element:", videoRef.current);
+        
+        // Ensure old tracks are stopped before setting a new stream
+        if (videoRef.current.srcObject instanceof MediaStream) {
+          const oldStream = videoRef.current.srcObject as MediaStream;
+          oldStream.getTracks().forEach(track => track.stop());
+        }
+        
         videoRef.current.srcObject = stream;
-        videoRef.current.play()
-          .then(() => {
-            console.log("Video playback started successfully");
-            setIsActive(true);
-            setLoading(false);
-          })
-          .catch(err => {
-            console.error("Error starting video playback:", err);
-            setError(`Error starting video: ${err.message}`);
-            setLoading(false);
-          });
+        
+        // Wait for video metadata to load before playing
+        videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            console.log("Video metadata loaded, attempting to play");
+            
+            // Promise-based play with error handling
+            videoRef.current.play()
+              .then(() => {
+                console.log("Video playback started successfully");
+                setIsActive(true);
+                setLoading(false);
+              })
+              .catch(err => {
+                console.error("Error starting video playback:", err);
+                setError(`Error starting camera: ${err.message || "Could not start playback"}`);
+                setLoading(false);
+              });
+          }
+        };
+        
+        // Handle errors during metadata loading
+        videoRef.current.onerror = (e) => {
+          console.error("Video element error:", e);
+          setError(`Camera error: ${(e.target as any)?.error?.message || "Unknown error"}`);
+          setLoading(false);
+        };
       } else {
-        setError("Video element reference not available");
+        // This should not happen since we check earlier, but just in case
+        setError("Video element reference not available after obtaining stream");
         setLoading(false);
       }
     } catch (err: any) {
       console.error("Error accessing camera:", err);
-      setError(`Camera access denied: ${err.message || 'Unknown error'}`);
+      const errorMessage = err.name === 'NotAllowedError' 
+        ? "Camera access was denied. Please allow camera access and try again." 
+        : `Camera error: ${err.message || 'Unknown error'}`;
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -85,31 +127,43 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       
+      // Make sure video has valid dimensions
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        console.error("Video dimensions are invalid", video.videoWidth, video.videoHeight);
+        setError("Cannot capture photo: video stream not properly initialized");
+        return;
+      }
+      
       // Set canvas dimensions to match the video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
       console.log(`Canvas dimensions set to: ${canvas.width}x${canvas.height}`);
       
-      // Draw the current video frame on the canvas
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Convert canvas to data URL (base64)
-        const data = canvas.toDataURL('image/jpeg', 0.8);
-        console.log("Photo captured successfully");
-        setPhotoData(data);
-        setPhotoTaken(true);
-        onPhotoCapture(data);
-        
-        // Stop the camera after taking the photo
-        stopCamera();
-      } else {
-        setError("Could not get canvas context");
+      try {
+        // Draw the current video frame on the canvas
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          // Convert canvas to data URL (base64)
+          const data = canvas.toDataURL('image/jpeg', 0.8);
+          console.log("Photo captured successfully");
+          setPhotoData(data);
+          setPhotoTaken(true);
+          onPhotoCapture(data);
+          
+          // Stop the camera after taking the photo
+          stopCamera();
+        } else {
+          setError("Could not get canvas context");
+        }
+      } catch (err: any) {
+        console.error("Error capturing photo:", err);
+        setError(`Failed to capture photo: ${err.message || "Unknown error"}`);
       }
     } else {
-      setError("Video or canvas reference not available");
+      setError("Video or canvas reference not available for photo capture");
     }
   };
 
@@ -132,9 +186,18 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
     <div className="space-y-4 border rounded-lg p-4">
       <h3 className="text-lg font-medium">Item Photo</h3>
       
+      {!browserSupported && (
+        <Alert className="mb-4">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Your browser doesn't support camera access. Please try using Chrome, Firefox, or Safari.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {error && (
         <Alert variant="destructive" className="mb-4">
-          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -160,6 +223,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
             ref={videoRef}
             autoPlay
             playsInline
+            muted
             className="w-full h-full object-cover"
             style={{ display: isActive ? 'block' : 'none' }}
           />
@@ -185,6 +249,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
             type="button" 
             onClick={startCamera}
             className="flex-1"
+            disabled={!browserSupported || loading}
           >
             <Camera className="mr-2 h-4 w-4" />
             Start Camera
