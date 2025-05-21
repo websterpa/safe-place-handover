@@ -28,7 +28,8 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
 
   const startCamera = async () => {
     if (!videoRef.current) {
-      setError("Video element not found.");
+      // Retry after a short delay
+      setTimeout(startCamera, 100);
       return;
     }
 
