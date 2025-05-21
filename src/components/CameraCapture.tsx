@@ -27,6 +27,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       startCamera,
       stopCamera,
       takePhoto,
+      toggleCameraFacing
     } = useCamera({ onPhotoCapture });
 
     // Expose methods to parent components
@@ -51,6 +52,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
             videoRef={videoRef}
             onTakePhoto={takePhoto}
             onStopCamera={stopCamera}
+            onToggleFacing={toggleCameraFacing}
           />
         )}
 

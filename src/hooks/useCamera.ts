@@ -12,8 +12,10 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
   const [cameraActive, setCameraActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
 
   useEffect(() => {
+    // Check if browser supports media devices
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setError("Your browser doesn't support camera access.");
     }
@@ -37,11 +39,11 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
       
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: {
-          facingMode: "environment" // Prefer back camera when available
+          facingMode: facingMode // Use current facing mode
         } 
       });
       
-      console.log("Camera access granted, setting up video stream");
+      console.log(`Camera access granted for ${facingMode} camera, setting up video stream`);
       videoRef.current.srcObject = stream;
       
       // Set up event listeners for better error catching
@@ -77,6 +79,19 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
       setError("Failed to access camera: " + err.message);
       setLoading(false);
     }
+  };
+
+  const toggleCameraFacing = async () => {
+    // First stop current camera
+    stopCamera();
+    
+    // Toggle facing mode
+    setFacingMode(prevMode => prevMode === 'environment' ? 'user' : 'environment');
+    
+    // Small delay to ensure previous camera is fully stopped
+    setTimeout(() => {
+      startCamera();
+    }, 300);
   };
 
   const stopCamera = () => {
@@ -144,8 +159,10 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
     cameraActive,
     error,
     loading,
+    facingMode,
     startCamera,
     stopCamera,
+    toggleCameraFacing,
     takePhoto,
     setError
   };
