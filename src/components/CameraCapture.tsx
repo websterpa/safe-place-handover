@@ -88,7 +88,13 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onPhotoCapture }) => {
         // Handle errors during metadata loading
         videoRef.current.onerror = (e) => {
           console.error("Video element error:", e);
-          setError(`Camera error: ${(e.target as any)?.error?.message || "Unknown error"}`);
+          // Fix: Type guard to ensure we're dealing with an Event object with target property
+          if (e && typeof e === 'object' && 'target' in e) {
+            const target = e.target as HTMLVideoElement;
+            setError(`Camera error: ${target.error?.message || "Unknown error"}`);
+          } else {
+            setError("Camera error: Unknown error occurred");
+          }
           setLoading(false);
         };
       } else {
