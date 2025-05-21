@@ -130,7 +130,7 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) {
       console.error("Cannot take photo: video or canvas ref is null");
-      return;
+      return null;
     }
 
     try {
@@ -140,7 +140,7 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
 
       if (!context) {
         console.error("Failed to get canvas 2d context");
-        return;
+        return null;
       }
 
       // Set canvas dimensions to match video dimensions
@@ -156,16 +156,15 @@ export const useCamera = ({ onPhotoCapture }: UseCameraProps = {}) => {
       const photoData = canvas.toDataURL("image/png");
       console.log("Photo captured successfully");
       
-      // Pass the photo data to the parent component
-      if (onPhotoCapture) {
-        onPhotoCapture(photoData);
-      }
+      // Call the callback if provided but don't stop the camera here anymore
+      // The component will decide when to call onPhotoCapture and stop the camera
       
-      // Stop the camera after taking the photo
-      stopCamera();
+      // Return the photo data so the component can work with it
+      return photoData;
     } catch (err) {
       console.error("Error taking photo:", err);
       setError(`Failed to capture photo: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      return null;
     }
   };
 
