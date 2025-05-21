@@ -40,6 +40,13 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       };
     }, []);
 
+    // Expose methods to parent components
+    useImperativeHandle(ref, () => ({
+      startCamera,
+      stopCamera,
+      takePhoto,
+    }));
+
     const startCamera = async () => {
       if (!videoRef.current) {
         setError("Video element not found.");
@@ -151,13 +158,6 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
         setError(`Failed to capture photo: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
     };
-
-    // Expose methods to parent components
-    useImperativeHandle(ref, () => ({
-      startCamera,
-      stopCamera,
-      takePhoto,
-    }));
 
     return (
       <div className="space-y-4">
