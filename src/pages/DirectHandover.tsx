@@ -132,6 +132,9 @@ const DirectHandover = () => {
         title: "Handover completed",
         description: "The direct handover has been successfully recorded",
       });
+      
+      // Navigate to the report page instead of showing success status
+      navigate(`/report?id=${handoverId}`);
     }
   };
 
@@ -170,7 +173,7 @@ const DirectHandover = () => {
     return <HandoverStatus status="expired" />;
   }
 
-  // Render success message if the handover is completed
+  // Render success message if the handover is completed but navigation failed
   if (handoverCompleted) {
     return <HandoverStatus status="success" />;
   }
