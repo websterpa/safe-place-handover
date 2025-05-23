@@ -45,7 +45,10 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
   };
   
   const handleSubmit = (values: FinderFormValues) => {
+    console.log("Form submission attempted, photoSaved:", photoSaved);
+    
     if (!photoSaved) {
+      console.log("Photo not saved, showing error message");
       form.setError("root", { 
         type: "manual",
         message: "Please take and save a photo of the item before submitting" 
@@ -53,6 +56,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
       return;
     }
     
+    console.log("Proceeding with form submission as photo is saved");
     onSubmit(values);
   };
 
@@ -110,7 +114,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
           <CameraCapture ref={cameraRef} onPhotoCapture={handlePhotoCapture} />
           
           {photoSaved && (
-            <Alert className="mt-4" variant="info">
+            <Alert className="mt-4" variant="success">
               <AlertDescription>Photo successfully captured and saved!</AlertDescription>
             </Alert>
           )}
