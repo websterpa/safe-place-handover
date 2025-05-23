@@ -21,8 +21,8 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const finderFormSchema = z.object({
   finderFirstName: z.string().min(1, "First name is required"),
   finderLastName: z.string().min(1, "Last name is required"),
-  finderContact: z.string().optional()
-    .refine(val => !val || emailRegex.test(val) || ukPhoneRegex.test(val), {
+  finderContact: z.string().min(1, "Contact information is required")
+    .refine(val => emailRegex.test(val) || ukPhoneRegex.test(val), {
       message: "Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)",
     }),
   itemDescription: z.string().min(1, "Item description is required"),
@@ -109,7 +109,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
           name="finderContact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Information (optional)</FormLabel>
+              <FormLabel>Contact Information</FormLabel>
               <FormControl>
                 <Input placeholder="Email or UK mobile number" {...field} />
               </FormControl>
@@ -135,7 +135,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
         <div className="border rounded-lg p-4 bg-gray-50">
           <h3 className="text-lg font-medium mb-3 flex items-center">
             <Camera className="mr-2 h-4 w-4" /> 
-            Item Photo
+            Lost Item Photo
           </h3>
           
           <CameraCapture ref={cameraRef} onPhotoCapture={handlePhotoCapture} />

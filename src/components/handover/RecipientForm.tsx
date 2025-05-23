@@ -18,9 +18,9 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const recipientFormSchema = z.object({
   staffFirstName: z.string().min(1, "First name is required"),
   staffLastName: z.string().min(1, "Last name is required"),
-  staffRole: z.string().optional(),
-  staffContact: z.string().optional()
-    .refine(val => !val || emailRegex.test(val) || ukPhoneRegex.test(val), {
+  staffRole: z.string().min(1, "Role/Position is required"),
+  staffContact: z.string().min(1, "Contact information is required")
+    .refine(val => emailRegex.test(val) || ukPhoneRegex.test(val), {
       message: "Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)",
     }),
   confirmed: z.boolean().refine(val => val === true, {
@@ -53,7 +53,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({ onSubmit, itemPhoto }) =>
         {/* Display the item photo if available */}
         {itemPhoto && (
           <div className="mb-6">
-            <h3 className="text-lg font-medium mb-2">Item Photo</h3>
+            <h3 className="text-lg font-medium mb-2">Lost Item Photo</h3>
             <div className="border rounded-lg overflow-hidden">
               <img 
                 src={itemPhoto} 
@@ -99,7 +99,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({ onSubmit, itemPhoto }) =>
           name="staffRole"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role/Position (optional)</FormLabel>
+              <FormLabel>Role/Position</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Store Manager, Security Officer" {...field} />
               </FormControl>
@@ -113,7 +113,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({ onSubmit, itemPhoto }) =>
           name="staffContact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Information (optional)</FormLabel>
+              <FormLabel>Contact Information</FormLabel>
               <FormControl>
                 <Input placeholder="Email or UK mobile number" {...field} />
               </FormControl>
