@@ -71,14 +71,14 @@ const ReportPage = () => {
   const handleFinish = () => {
     toast({
       title: "Handover Complete",
-      description: "Thank you for using iFoundIt.io",
+      description: "Thank you for using iFoundIt",
     });
     navigate("/");
   };
   
   if (loading) {
     return (
-      <PageContainer title="iFoundIt.io" subtitle="Loading Handover Report...">
+      <PageContainer title="iFoundIt" subtitle="Loading Handover Report...">
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-center">Loading...</CardTitle>
@@ -98,7 +98,7 @@ const ReportPage = () => {
   };
   
   return (
-    <PageContainer title="iFoundIt.io" subtitle="Handover Report">
+    <PageContainer title="iFoundIt" subtitle="Handover Report">
       <Card className="shadow-lg">
         <CardHeader className="border-b pb-4">
           <div className="flex items-center justify-center mb-2">

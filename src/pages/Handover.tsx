@@ -199,7 +199,7 @@ const Handover = () => {
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-md mx-auto">
         <header className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-800 mb-2">iFoundIt.io</h1>
+          <h1 className="text-3xl font-bold text-blue-800 mb-2">iFoundIt</h1>
           <p className="text-gray-600">Safe Place Handover</p>
         </header>
 
