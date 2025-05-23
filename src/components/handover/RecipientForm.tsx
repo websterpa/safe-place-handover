@@ -19,7 +19,7 @@ const recipientFormSchema = z.object({
   staffFirstName: z.string().min(1, "First name is required"),
   staffLastName: z.string().min(1, "Last name is required"),
   staffRole: z.string().min(1, "Role/Position is required"),
-  staffContact: z.string().min(1, "Contact information is required")
+  staffContact: z.string().min(1, "Office or mobile phone number is required")
     .refine(val => emailRegex.test(val) || ukPhoneRegex.test(val), {
       message: "Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)",
     }),
@@ -113,7 +113,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({ onSubmit, itemPhoto }) =>
           name="staffContact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Information</FormLabel>
+              <FormLabel>Office or Mobile phone number</FormLabel>
               <FormControl>
                 <Input placeholder="Email or UK mobile number" {...field} />
               </FormControl>

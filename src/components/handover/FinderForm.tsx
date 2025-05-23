@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +20,7 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const finderFormSchema = z.object({
   finderFirstName: z.string().min(1, "First name is required"),
   finderLastName: z.string().min(1, "Last name is required"),
-  finderContact: z.string().min(1, "Contact information is required")
+  finderContact: z.string().min(1, "Office or mobile phone number is required")
     .refine(val => emailRegex.test(val) || ukPhoneRegex.test(val), {
       message: "Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)",
     }),
@@ -109,7 +108,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
           name="finderContact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Information</FormLabel>
+              <FormLabel>Office or Mobile phone number</FormLabel>
               <FormControl>
                 <Input placeholder="Email or UK mobile number" {...field} />
               </FormControl>
