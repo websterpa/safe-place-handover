@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -114,7 +113,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
           <CameraCapture ref={cameraRef} onPhotoCapture={handlePhotoCapture} />
           
           {photoSaved && (
-            <Alert className="mt-4" variant="success">
+            <Alert className="mt-4" variant="info">
               <AlertDescription>Photo successfully captured and saved!</AlertDescription>
             </Alert>
           )}
