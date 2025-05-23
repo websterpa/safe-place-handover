@@ -114,7 +114,10 @@ const ReportPage = () => {
               <FileText className="mr-2 h-4 w-4" /> Item Details
             </h3>
             <div className="space-y-2 pl-6">
-              <p><span className="font-medium">Description:</span> {handoverData.itemDescription}</p>
+              <div>
+                <span className="font-medium">Description:</span>{" "}
+                <span className="break-words">{handoverData.itemDescription}</span>
+              </div>
               <p><span className="font-medium">Handover Date:</span> {formatDate(handoverData.submittedAt)}</p>
               
               {handoverData.itemPhoto && (
@@ -135,20 +138,20 @@ const ReportPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t">
             <div className="space-y-2">
               <h3 className="font-medium">Finder Information</h3>
-              <p className="text-sm">Name: {handoverData.finderName}</p>
+              <p className="text-sm break-words">Name: {handoverData.finderName}</p>
               {handoverData.finderContact && (
-                <p className="text-sm">Contact: {handoverData.finderContact}</p>
+                <p className="text-sm break-words">Contact: {handoverData.finderContact}</p>
               )}
             </div>
             
             <div className="space-y-2">
               <h3 className="font-medium">Recipient Information</h3>
-              <p className="text-sm">Name: {handoverData.staffFirstName} {handoverData.staffLastName}</p>
+              <p className="text-sm break-words">Name: {handoverData.staffFirstName} {handoverData.staffLastName}</p>
               {handoverData.staffRole && (
-                <p className="text-sm">Role: {handoverData.staffRole}</p>
+                <p className="text-sm break-words">Role: {handoverData.staffRole}</p>
               )}
               {handoverData.staffContact && (
-                <p className="text-sm">Contact: {handoverData.staffContact}</p>
+                <p className="text-sm break-words">Contact: {handoverData.staffContact}</p>
               )}
             </div>
           </div>
