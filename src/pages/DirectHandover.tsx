@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -146,7 +145,7 @@ const DirectHandover = () => {
   // Render error message if the handover is invalid
   if (invalidHandover) {
     return (
-      <PageContainer title="iFoundIt.io" subtitle="Invalid Handover Request">
+      <PageContainer title="iFoundIt" subtitle="Invalid Handover Request">
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-center text-2xl text-red-600">Invalid Handover</CardTitle>
@@ -181,7 +180,7 @@ const DirectHandover = () => {
   // Render the finder form if not yet submitted
   if (!finderSubmitted) {
     return (
-      <PageContainer title="iFoundIt.io" subtitle="Direct Handover - Finder Information">
+      <PageContainer title="iFoundIt" subtitle="Person to Person - Finder Information">
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-center text-2xl">Finder Information</CardTitle>
@@ -203,7 +202,7 @@ const DirectHandover = () => {
 
   // Render the recipient form if finder info is submitted
   return (
-    <PageContainer title="iFoundIt.io" subtitle="Direct Handover - Recipient Information">
+    <PageContainer title="iFoundIt" subtitle="Person to Person - Recipient Information">
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-center text-2xl">Recipient Information</CardTitle>
