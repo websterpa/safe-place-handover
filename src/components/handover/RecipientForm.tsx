@@ -8,12 +8,21 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
+// Define UK phone number regex pattern
+const ukPhoneRegex = /^(?:(?:\+44\s?|0)7\d{3}\s?\d{6})$/;
+
+// Define email regex pattern
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 // Define the recipient form schema with first name and last name
 const recipientFormSchema = z.object({
   staffFirstName: z.string().min(1, "First name is required"),
   staffLastName: z.string().min(1, "Last name is required"),
   staffRole: z.string().optional(),
-  staffContact: z.string().optional(),
+  staffContact: z.string().optional()
+    .refine(val => !val || emailRegex.test(val) || ukPhoneRegex.test(val), {
+      message: "Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)",
+    }),
   confirmed: z.boolean().refine(val => val === true, {
     message: "You must confirm receipt of the item",
   }),
@@ -106,7 +115,7 @@ const RecipientForm: React.FC<RecipientFormProps> = ({ onSubmit, itemPhoto }) =>
             <FormItem>
               <FormLabel>Contact Information (optional)</FormLabel>
               <FormControl>
-                <Input placeholder="Email or phone number" {...field} />
+                <Input placeholder="Email or UK mobile number" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

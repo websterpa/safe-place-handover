@@ -10,7 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 interface HandoverData {
   handoverId: string;
   createdAt: string;
-  finderName: string;
+  finderFirstName: string;
+  finderLastName: string;
+  finderName?: string; // For backwards compatibility
   finderContact?: string;
   itemDescription: string;
   itemPhoto?: string;
@@ -96,6 +98,14 @@ const ReportPage = () => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
   };
+
+  // Get finder name, handling both new and old data formats
+  const getFinderName = () => {
+    if (handoverData.finderFirstName && handoverData.finderLastName) {
+      return `${handoverData.finderFirstName} ${handoverData.finderLastName}`;
+    }
+    return handoverData.finderName || "Unknown";
+  };
   
   return (
     <PageContainer title="iFoundIt" subtitle="Handover Report">
@@ -138,7 +148,7 @@ const ReportPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t">
             <div className="space-y-2">
               <h3 className="font-medium">Finder Information</h3>
-              <p className="text-sm break-words">Name: {handoverData.finderName}</p>
+              <p className="text-sm break-words">Name: {getFinderName()}</p>
               {handoverData.finderContact && (
                 <p className="text-sm break-words">Contact: {handoverData.finderContact}</p>
               )}

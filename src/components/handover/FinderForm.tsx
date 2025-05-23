@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,10 +11,20 @@ import CameraCapture, { CameraCaptureHandle } from "@/components/CameraCapture";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Camera } from "lucide-react";
 
+// Define UK phone number regex pattern
+const ukPhoneRegex = /^(?:(?:\+44\s?|0)7\d{3}\s?\d{6})$/;
+
+// Define email regex pattern
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 // Define the finder form schema
 const finderFormSchema = z.object({
-  finderName: z.string().min(1, "Name is required"),
-  finderContact: z.string().optional(),
+  finderFirstName: z.string().min(1, "First name is required"),
+  finderLastName: z.string().min(1, "Last name is required"),
+  finderContact: z.string().optional()
+    .refine(val => !val || emailRegex.test(val) || ukPhoneRegex.test(val), {
+      message: "Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)",
+    }),
   itemDescription: z.string().min(1, "Item description is required"),
 });
 
@@ -28,7 +39,8 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
   const form = useForm<FinderFormValues>({
     resolver: zodResolver(finderFormSchema),
     defaultValues: {
-      finderName: "",
+      finderFirstName: "",
+      finderLastName: "",
       finderContact: "",
       itemDescription: "",
     },
@@ -62,19 +74,35 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="finderName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Your Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your full name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="finderFirstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter first name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="finderLastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter last name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         
         <FormField
           control={form.control}
@@ -83,7 +111,7 @@ const FinderForm: React.FC<FinderFormProps> = ({ onSubmit, onPhotoCapture }) => 
             <FormItem>
               <FormLabel>Contact Information (optional)</FormLabel>
               <FormControl>
-                <Input placeholder="Email or phone number" {...field} />
+                <Input placeholder="Email or UK mobile number" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

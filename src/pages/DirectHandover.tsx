@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,9 +90,13 @@ const DirectHandover = () => {
   const onFinderSubmit = (values: FinderFormValues) => {
     console.log("Finder form submitted:", values);
     if (handoverId) {
+      // Combine first name and last name for storing
+      const finderName = `${values.finderFirstName} ${values.finderLastName}`.trim();
+      
       // Save finder data to localStorage
       localStorage.setItem(handoverId, JSON.stringify({
         ...values,
+        finderName, // Add combined name for backward compatibility
         handoverId,
         createdAt,
         itemPhoto, // Include the item photo in the stored data
@@ -117,7 +122,7 @@ const DirectHandover = () => {
       const handoverData = {
         ...finderData,
         ...values,
-        // Generate a full name from first and last name for backward compatibility if needed
+        // Generate a full name from first and last name for backward compatibility
         staffName: `${values.staffFirstName} ${values.staffLastName}`.trim(),
         submittedAt: new Date().toISOString(),
         status: 'completed'
