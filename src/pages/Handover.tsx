@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,12 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { isHandoverExpired } from "@/utils/uuid";
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
+
+// Define UK phone number regex pattern
+const ukPhoneRegex = /^(?:(?:\+44\s?|0)7\d{3}\s?\d{6})$/;
+
+// Define email regex pattern
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 interface HandoverData {
   staffName: string;
@@ -43,6 +48,7 @@ const Handover = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [contactError, setContactError] = useState("");
 
   useEffect(() => {
     // Simulating checking if the handover link exists and is valid
@@ -80,10 +86,29 @@ const Handover = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear contact error when user starts typing
+    if (name === "staffContact") {
+      setContactError("");
+    }
   };
 
   const handleCheckboxChange = (checked: boolean) => {
     setFormData(prev => ({ ...prev, acceptResponsibility: checked }));
+  };
+
+  const validateContact = (contact: string): boolean => {
+    if (!contact.trim()) {
+      setContactError("Contact information is required");
+      return false;
+    }
+    
+    if (!emailRegex.test(contact) && !ukPhoneRegex.test(contact)) {
+      setContactError("Enter a valid email address or UK mobile number (e.g., 07123456789 or +447123456789)");
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,6 +119,24 @@ const Handover = () => {
       toast({
         title: "Required field missing",
         description: "Please enter your full name",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.staffRole.trim()) {
+      toast({
+        title: "Required field missing",
+        description: "Please enter your role/position",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!validateContact(formData.staffContact)) {
+      toast({
+        title: "Invalid contact information",
+        description: contactError,
         variant: "destructive",
       });
       return;
@@ -227,25 +270,31 @@ const Handover = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="staffRole">Role (optional)</Label>
+                  <Label htmlFor="staffRole">Role/Position *</Label>
                   <Input 
                     id="staffRole"
                     name="staffRole"
                     value={formData.staffRole}
                     onChange={handleInputChange}
-                    placeholder="Your role or position"
+                    placeholder="e.g., Store Manager, Security Officer"
+                    required
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="staffContact">Contact (optional)</Label>
+                  <Label htmlFor="staffContact">Office or Mobile phone number *</Label>
                   <Input 
                     id="staffContact"
                     name="staffContact"
                     value={formData.staffContact}
                     onChange={handleInputChange}
-                    placeholder="Email or phone number"
+                    placeholder="Email or UK mobile number"
+                    required
+                    className={contactError ? "border-red-500" : ""}
                   />
+                  {contactError && (
+                    <p className="text-sm text-red-500">{contactError}</p>
+                  )}
                 </div>
                 
                 <div className="flex items-center space-x-2 pt-2">
