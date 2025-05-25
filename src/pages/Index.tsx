@@ -6,12 +6,12 @@ import QRCode from "@/components/QRCode";
 import { generateUUID } from "@/utils/uuid";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
-
 const Index = () => {
   const [handoverId, setHandoverId] = useState<string | null>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-
   const handleSafePlaceClick = () => {
     // Generate a unique handover ID
     const uuid = generateUUID();
@@ -21,7 +21,6 @@ const Index = () => {
       description: "Show this QR code to staff for handover verification"
     });
   };
-
   const handleDirectHandoverClick = () => {
     // Generate a unique handover ID
     const uuid = generateUUID();
@@ -44,26 +43,20 @@ const Index = () => {
     console.log("Navigating to:", `/direct-handover?id=${uuid}`);
     navigate(`/direct-handover?id=${uuid}`);
   };
-
-  return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
+  return <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-2">iFoundIt</h1>
           <p className="text-gray-600">Secure 'Found' item handover system</p>
         </header>
 
-        {!handoverId ? (
-          <Card className="shadow-lg">
+        {!handoverId ? <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="text-center text-2xl">How would you like to return this item?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 pt-4">
               <div className="flex flex-col space-y-4">
-                <Button 
-                  className="flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-lg py-6" 
-                  onClick={handleSafePlaceClick}
-                >
+                <Button className="flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-lg py-6" onClick={handleSafePlaceClick}>
                   <div className="flex items-center">
                     <ShieldCheck className="mr-2 h-5 w-5" />
                     Obtain Safe Place QR Code
@@ -71,21 +64,15 @@ const Index = () => {
                   <ArrowRight className="h-5 w-5" />
                 </Button>
                 
-                <Button 
-                  variant="outline" 
-                  className="flex items-center justify-between text-lg py-6" 
-                  onClick={handleDirectHandoverClick}
-                >
+                <Button variant="outline" className="flex items-center justify-between text-lg py-6" onClick={handleDirectHandoverClick}>
                   <div>Pass item to Safe Place staff</div>
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        ) : (
-          <Card className="shadow-lg">
+          </Card> : <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-center text-2xl">Safe Place Handover</CardTitle>
+              <CardTitle className="text-center text-2xl">Safe Place Handover QR Code</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 flex flex-col items-center">
               <div className="text-center mb-4">
@@ -110,11 +97,8 @@ const Index = () => {
                 </Button>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
