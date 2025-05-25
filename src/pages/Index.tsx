@@ -6,6 +6,7 @@ import QRCode from "@/components/QRCode";
 import { generateUUID } from "@/utils/uuid";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, Check, ShieldCheck } from "lucide-react";
+
 const Index = () => {
   const [handoverId, setHandoverId] = useState<string | null>(null);
   const {
@@ -56,7 +57,10 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-6 pt-4">
               <div className="flex flex-col space-y-4">
-                <Button className="flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-lg py-6" onClick={handleSafePlaceClick}>
+                <Button 
+                  className="flex items-center justify-between bg-blue-600 hover:bg-blue-700 text-lg py-6" 
+                  onClick={handleSafePlaceClick}
+                >
                   <div className="flex items-center">
                     <ShieldCheck className="mr-2 h-5 w-5" />
                     Obtain Safe Place QR Code
@@ -64,8 +68,12 @@ const Index = () => {
                   <ArrowRight className="h-5 w-5" />
                 </Button>
                 
-                <Button variant="outline" className="flex items-center justify-between text-lg py-6" onClick={handleDirectHandoverClick}>
-                  <div>Pass item to Safe Place staff</div>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center justify-between text-lg py-6" 
+                  onClick={handleDirectHandoverClick}
+                >
+                  <div>Leave the item with safe place staff</div>
                   <ArrowRight className="h-5 w-5" />
                 </Button>
               </div>
