@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
@@ -67,7 +66,7 @@ const Index = () => {
                 >
                   <div className="flex items-center">
                     <ShieldCheck className="mr-2 h-5 w-5" />
-                    Leave in a safe place
+                    Obtain Safe Place QR Code
                   </div>
                   <ArrowRight className="h-5 w-5" />
                 </Button>
